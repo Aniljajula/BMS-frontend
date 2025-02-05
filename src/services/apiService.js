@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://122.175.45.16:51270";
+const BASE_URL = "http://192.168.1.24:51270";
 
 
 
@@ -40,7 +40,7 @@ export const fetchManufacturerDetails = async (siteId, serialNumber) => {
 export const fetchDeviceDetails = async (siteId, serialNumber) => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/getGeneralDataBySiteIdAndSerialNumber?siteId=${siteId}&serialNumber=${serialNumber}`
+        `http://192.168.1.40:51270/getGeneralDataBySiteIdAndSerialNumber?siteId=${siteId}&serialNumber=${serialNumber}`
       );
       return response.data;
     } catch (error) {

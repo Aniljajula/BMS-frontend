@@ -94,30 +94,17 @@ const DataDialog = ({ openDialog, handleCloseDialog, selectedStatus, barChartDat
         </DialogTitle>
         <DialogContent>
           <ResponsiveContainer width="100%" height={350}>
-          <BarChart 
-    data={barChartData} 
-    barSize={25} 
-    margin={{ bottom: 40 }} 
-    barCategoryGap="20%" 
-    barGap={5} 
-    scale="linear"
->
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" dx={-5} dy={15} />
-
-    {/* Y-Axis is present but values are hidden */}
-    <YAxis hide={true} tick={{ fontSize: 12 }} tickCount={5} domain={[1, barChartData.length]} />
-
-    <Tooltip cursor={{ fill: "rgba(0, 0, 0, 0.1)" }} />
-    <Legend />
-    
-    <Bar dataKey="count" fill="#8884d8" onClick={handleBarClick}>
-        {/* Display count values above bars */}
-        <LabelList dataKey="count" position="top" offset={5} style={{ fontSize: "12px", fontWeight: "bold" }} />
-    </Bar>
-</BarChart>
-</ResponsiveContainer>
-
+            <BarChart data={barChartData} barSize={25} margin={{ bottom: 40 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" dx={-5} dy={15} />
+              <YAxis domain={[0, "dataMax"]} />
+              <Tooltip cursor={{ fill: "rgba(0, 0, 0, 0.1)" }} />
+              <Legend />
+              <Bar dataKey="count" fill="#8884d8" onClick={handleBarClick}>
+                <LabelList dataKey="count" position="bottom" offset={11} style={{ fontSize: "12px" }} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </DialogContent>
         <DialogActions>
           <Button
