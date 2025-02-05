@@ -33,7 +33,7 @@ const Team = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch("http://192.168.1.24:51270/getListofLoginRoles"); 
+        const response = await fetch("http://122.175.45.16:51270/getListofLoginRoles"); 
         const data = await response.json();
         setRoles(data); // Since data is an array of strings, store it directly
       } catch (error) {
@@ -47,7 +47,7 @@ const Team = () => {
   const fetchUserData = async () => {
     try {
       const response = await fetch(
-        "http://192.168.1.40:51270/GetAllLoginDetailsInPlainLoginDetailFormate"
+        "http://122.175.45.16:51270/GetAllLoginDetailsInPlainLoginDetailFormate"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch users");
@@ -124,8 +124,8 @@ const Team = () => {
     }
   
     const url = isEditing
-      ? "http://192.168.1.40:51270/PostUpdateLoginUser"
-      : "http://192.168.1.40:51270/PostCreateNewLoginUser";
+      ? "http://122.175.45.16:51270/PostUpdateLoginUser"
+      : "http://122.175.45.16:51270/PostCreateNewLoginUser";
   
     const data = {
       role: formData.role,
@@ -169,7 +169,7 @@ const Team = () => {
     if (confirmation) {
       try {
         const response = await fetch(
-          `http://localhost:51470/DeleteLoginUserByLoginCredId?loginCredId=${loginCredentialsId}`,
+          `http://122.175.45.16:51470/DeleteLoginUserByLoginCredId?loginCredId=${loginCredentialsId}`,
           {
             method: "DELETE",
           }
@@ -494,7 +494,7 @@ const Team = () => {
               }}
             >
               Cancel
-            </Button>
+            </Button>w
             <Button
               type="submit"
               color="primary"

@@ -39,7 +39,7 @@ const TicketTable = () =>
   // Fetch tickets whenever `page` or `rowsPerPage` changes
   const last7daysTickets=async(currentPage)=>{
     try{
-      const response= await axios.get(`http://192.168.1.40:51270/latest7days?page=${currentPage}&size=${rowsPerPage}`)
+      const response= await axios.get(`http://122.175.45.16:51270/latest7days?page=${currentPage}&size=${rowsPerPage}`)
       setTickets(response.data.content); // Use `.content` for paginated data
       setTotalPages(response.data.totalElements); // Set the total number of records
     }
@@ -86,7 +86,7 @@ const TicketTable = () =>
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
   
-    const url = `http://192.168.1.40:51270/tickets?siteId=${siteId}&start=${formattedStartDate}T00:00:00&end=${formattedEndDate}T23:59:59&page=${currentPage}&size=${rowsPerPage}`;
+    const url = `http://122.175.45.16:51270/tickets?siteId=${siteId}&start=${formattedStartDate}T00:00:00&end=${formattedEndDate}T23:59:59&page=${currentPage}&size=${rowsPerPage}`;
   
     try {
       setTickets([]);
