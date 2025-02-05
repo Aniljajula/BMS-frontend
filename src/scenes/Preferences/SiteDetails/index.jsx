@@ -4,7 +4,7 @@ import { Grid, Typography, TextField, Button,Box } from '@mui/material';
 import SearchAndAddButtons from '../SearchAndAddButtons/index';
 import { AppContext } from "../../../services/AppContext";
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-
+const BASE_URL = "http://122.175.45.16:51270";
 import axios from "axios";
 const columnMappingsPart1 = {
   siteId: 'Site ID',
@@ -211,7 +211,7 @@ const SiteLocation = () => {
       console.log('Payload being sent to addSiteLocation API:', combinedData);
         //const updatedData = { ...formData }; // Use formData as-is
     
-        const response = await axios.put(`http://localhost:51270/api/updateSiteLocationToSiteId`, combinedData);
+        const response = await axios.put(`${BASE_URL}/api/updateSiteLocationToSiteId`, combinedData);
          // Pass siteId and payload
         alert('Site details updated successfully!');
         setIsEditing(false);
@@ -270,7 +270,7 @@ const handleAddSite = async () => {
    
 
     const response = await axios.post(
-      `http://localhost:51270/api/postAddNewLocationToSiteId`,
+      `${BASE_URL}/api/postAddNewLocationToSiteId`,
       combinedData, // Use plain object
       { headers: { 'Content-Type': 'application/json' } }
     );
