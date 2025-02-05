@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Grid, IconButton, Tooltip, TextField, Autocomplete ,Box} from '@mui/material';
 import { AppContext } from "../../../services/AppContext";
-import GetAppIcon from '@mui/icons-material/GetApp';
+import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -89,19 +89,19 @@ const SearchAndAddButtons = ({ handleGetDetails, handleEdit, isEditing, handleAd
             }}
           >
             {/* Get Details Icon */}
-            <Tooltip title="Get Details">
-              <IconButton
-                color="secondary"
-                onClick={handleGetDetails}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "rgba(63, 81, 181, 0.1)", // Light blue background on hover
-                  },
-                }}
-              >
-                <GetAppIcon fontSize="15px" />
-              </IconButton>
-            </Tooltip>
+            <Tooltip title="Search Details">
+  <IconButton
+    color="secondary"
+    onClick={handleGetDetails}
+    sx={{
+      "&:hover": {
+        backgroundColor: "rgba(63, 81, 181, 0.1)", // Light blue background on hover
+      },
+    }}
+  >
+    <SearchIcon fontSize="small" /> {/* Change icon to SearchIcon */}
+  </IconButton>
+</Tooltip>
 
             {/* Edit Icon */}
             <Tooltip title={isEditing ? "Cancel Edit" : "Edit"}>

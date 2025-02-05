@@ -11,7 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import axios from "axios";
-const BASE_URL = "http://122.175.45.16:51270";
+
 const Team = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -33,7 +33,7 @@ const Team = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/getListofLoginRoles`); 
+        const response = await fetch("http://122.175.45.16:51270/getListofLoginRoles"); 
         const data = await response.json();
         setRoles(data); // Since data is an array of strings, store it directly
       } catch (error) {
@@ -47,7 +47,7 @@ const Team = () => {
   const fetchUserData = async () => {
     try {
       const response = await fetch(
-        `${BASE_URL}/GetAllLoginDetailsInPlainLoginDetailFormate`
+        "http://122.175.45.16:51270/GetAllLoginDetailsInPlainLoginDetailFormate"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch users");
@@ -124,8 +124,8 @@ const Team = () => {
     }
   
     const url = isEditing
-      ? `${BASE_URL}/PostUpdateLoginUser`
-      : `${BASE_URL}/PostCreateNewLoginUser`;
+      ? "http://122.175.45.16:51270/PostUpdateLoginUser"
+      : "http://122.175.45.16:51270/PostCreateNewLoginUser";
   
     const data = {
       role: formData.role,
@@ -169,7 +169,7 @@ const Team = () => {
     if (confirmation) {
       try {
         const response = await fetch(
-          `${BASE_URL}/DeleteLoginUserByLoginCredId?loginCredId=${loginCredentialsId}`,
+          `http://localhost:51470/DeleteLoginUserByLoginCredId?loginCredId=${loginCredentialsId}`,
           {
             method: "DELETE",
           }
