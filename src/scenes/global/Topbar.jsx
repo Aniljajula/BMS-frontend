@@ -1,5 +1,5 @@
 import { Box, IconButton, useTheme } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -9,17 +9,16 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNavigate } from "react-router-dom"; 
-import deadline from "../../data/icons/deadline.png"
+import { useNavigate } from "react-router-dom";
+import deadline from "../../data/icons/deadline.png";
 import { AppContext } from "../../services/AppContext";
-import { fetchManufacturerDetails, fetchDeviceDetails, fetchChargerDetails } from "../../services/apiService";
+import { fetchManufacturerDetails, fetchDeviceDetails } from "../../services/apiService";
 
-const Topbar = ({ onLogout,vendorName,locationName=""}) => {
-
+const Topbar = ({ onLogout, vendorName, locationName = "" }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const {
     siteOptions,
@@ -29,66 +28,63 @@ const Topbar = ({ onLogout,vendorName,locationName=""}) => {
     setSiteId,
     setSerialNumber,
     setData,
-    setMdata,setCharger,liveTime , setLiveTime
+    setMdata,
+    setCharger,
+    liveTime,
+    setLiveTime,
   } = useContext(AppContext);
 
-  const handleSearch = async () => {
-    if (siteId && serialNumber) {
-      try {
+  const [errors, setErrors] = useState({
+    siteId: false,
+    serialNumber: false,
+  });
 
-        setMdata(null); // Clear previous manufacturer details
-        setData([]);    // Clear previous device data
-        setCharger(null);
-        // setLiveTime("");
-        // Fetch details
-        const result = await fetchManufacturerDetails(siteId, serialNumber);
-        const deviceResponse = await fetchDeviceDetails(siteId, serialNumber);
-        // const chargerResponse = await fetchChargerDetails(siteId)
-  
-        setMdata(result);   // Store manufacturer details
-        // setLiveTime(deviceResponse.packetDateTime) ;            
-        setData(deviceResponse.deviceData); // Store device data
-        setCharger(deviceResponse.chargerMonitoringData);
-        // Return the fetched data for further usage
-        return deviceResponse.deviceData;
-      } catch (error) {
-        console.error("Error during search:", error);
-      }
-    } else {
-      console.error("Please select both Site ID and Serial Number.");
+  const handleSearch = async () => {
+    // Check for empty fields and update errors state
+    const newErrors = {
+      siteId: !siteId,
+      serialNumber: !serialNumber,
+    };
+    setErrors(newErrors);
+
+    // Stop execution if any field is empty
+    if (!siteId || !serialNumber) {
+      return;
+    }
+
+    try {
+      setMdata(null); // Clear previous manufacturer details
+      setData([]); // Clear previous device data
+      setCharger(null);
+
+      // Fetch details
+      const result = await fetchManufacturerDetails(siteId, serialNumber);
+      const deviceResponse = await fetchDeviceDetails(siteId, serialNumber);
+
+      setMdata(result); // Store manufacturer details
+      setData(deviceResponse.deviceData); // Store device data
+      setCharger(deviceResponse.chargerMonitoringData);
+
+      // Return the fetched data for further usage
+      return deviceResponse.deviceData;
+    } catch (error) {
+      console.error("Error during search:", error);
     }
   };
-  
+
   const handleLogout = () => {
     if (onLogout) {
-      onLogout(); 
+      onLogout();
     }
-    navigate("/"); 
-    
+    navigate("/");
   };
-  // function convertOwlDatetimeToCustomDate(str) {
 
-  //   if (str == '') {
-  //     return '';
-  //   }
-
-  //   var date = new Date(str),
-  //     yr = (date.getFullYear()),
-  //     mnth = ("0" + (date.getMonth() + 1)).slice(-2),
-  //     day = ("0" + date.getDate()).slice(-2),
-  //     hour = ("0" + date.getHours()).slice(-2),
-  //     minutes = ("0" + date.getMinutes()).slice(-2),
-  //     seconds = ("0" + date.getSeconds()).slice(-2);
-  //   return yr + "-" + mnth + "-" + day + " " + hour + ":" + minutes + ":" + seconds;
-  // }
   function convertOwlDatetimeToCustomDate(dateString) {
-    // Parse the input string into a Date object
-    if(dateString==null || dateString==""){
+    if (dateString == null || dateString == "") {
       return "";
     }
     const utcDate = new Date(dateString);
 
-    // Return the formatted date as 'YYYY-MM-DD HH:MM:SS.mmm'
     const year = utcDate.getFullYear();
     const month = String(utcDate.getMonth() + 1).padStart(2, '0');
     const day = String(utcDate.getDate()).padStart(2, '0');
@@ -102,131 +98,133 @@ const Topbar = ({ onLogout,vendorName,locationName=""}) => {
 
   return (
     <Box
-    display="grid"
-    gridTemplateColumns="repeat(3,auto)"
-    gridTemplateRows="auto "
-    // p={2}
-  >
-    {/* Search Options */}
-    <Box
-   
       display="grid"
-      gridTemplateColumns="repeat(3, auto)"
-      gap={2}
-      sx={{ marginRight: 2 }}
+      gridTemplateColumns="repeat(3,auto)"
+      gridTemplateRows="auto "
     >
-    <Autocomplete
-    disablePortal
-    disableClearable
-    options={siteOptions.map((site) => site.siteId)}
-    value={siteId}
-    onChange={(event, newValue) => setSiteId(newValue)}
-    renderInput={(params) => <TextField {...params} label="Site ID" />}
-    sx={{ width: 200 }}
-  />
-
-  <Autocomplete
-    disablePortal
-    disableClearable
-    options={serialNumberOptions}
-    value={serialNumber}
-    onChange={(event, newValue) => setSerialNumber(newValue)}
-    renderInput={(params) => <TextField {...params} label="Serial Number" />}
-    sx={{ width: 200 }}
-  />
-
-
-      <IconButton onClick={handleSearch}>
-        <SearchIcon />
-      </IconButton>
-    </Box>
-  
-    {/* Location and Time */}
-    <Box
-      display="grid"
-      gridTemplateColumns="repeat(3, auto)"
-      gap="10px"
-      paddingTop="5px"
-      marginLeft="0px"
-    >
+      {/* Search Options */}
       <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        sx={{
-          border: "1px solid",
-          borderColor: colors.grey[500],
-          borderRadius: "4px",
-          height: "40px",
-          width: "150px",
-        }}
+        display="grid"
+        gridTemplateColumns="repeat(3, auto)"
+        gap={2}
+        sx={{ marginRight: 2 }}
       >
-        {locationName.name}
-      </Box>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        sx={{
-          border: "1px solid",
-          borderColor: colors.grey[500],
-          borderRadius: "4px",
-          height: "40px",
-          width: "150px",
-        }}
-      >
-        <IconButton>
-          {/* <img
-            src={deadline}
-            alt="Live Time"
-            style={{ width: "24px", height: "24px", marginRight: "8px" }}
-          /> */}
+        <Autocomplete
+          disablePortal
+          disableClearable
+          options={siteOptions.map((site) => site.siteId)}
+          value={siteId}
+          onChange={(event, newValue) => setSiteId(newValue)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Site ID"
+              error={errors.siteId}
+              helperText={errors.siteId ? "Please enter Site ID" : ""}
+            />
+          )}
+          sx={{ width: 200 }}
+        />
+
+        <Autocomplete
+          disablePortal
+          disableClearable
+          options={serialNumberOptions}
+          value={serialNumber}
+          onChange={(event, newValue) => setSerialNumber(newValue)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Serial Number"
+              error={errors.serialNumber}
+              helperText={errors.serialNumber ? "Please enter Serial Number" : ""}
+            />
+          )}
+          sx={{ width: 200 }}
+        />
+
+        <IconButton onClick={handleSearch}>
+          <SearchIcon />
         </IconButton>
-        {convertOwlDatetimeToCustomDate(liveTime )}
       </Box>
+
+      {/* Location and Time */}
+      <Box
+        display="grid"
+        gridTemplateColumns="repeat(3, auto)"
+        gap="10px"
+        paddingTop="5px"
+        marginLeft="0px"
+      >
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            border: "1px solid",
+            borderColor: colors.grey[500],
+            borderRadius: "4px",
+            height: "40px",
+            width: "150px",
+          }}
+        >
+          {locationName.name}
+        </Box>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            border: "1px solid",
+            borderColor: colors.grey[500],
+            borderRadius: "4px",
+            height: "40px",
+            width: "150px",
+          }}
+        >
+          {convertOwlDatetimeToCustomDate(liveTime)}
+        </Box>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          sx={{
+            border: "1px solid",
+            borderColor: colors.grey[500],
+            borderRadius: "4px",
+            height: "40px",
+            width: "150px",
+          }}
+        >
+          <IconButton>
+            <PersonOutlinedIcon />
+          </IconButton>
+          {vendorName}
+        </Box>
+      </Box>
+
+      {/* Icons */}
       <Box
         display="flex"
-        justifyContent="center"
+        justifyContent="flex-end"
         alignItems="center"
-        sx={{
-          border: "1px solid",
-          borderColor: colors.grey[500],
-          borderRadius: "4px",
-          height: "40px",
-          width: "150px",
-        }}
+        marginLeft="10px"
       >
-        <IconButton>
-          <PersonOutlinedIcon />
+        <IconButton onClick={colorMode.toggleColorMode}>
+          {theme.palette.mode === "dark" ? (
+            <DarkModeOutlinedIcon />
+          ) : (
+            <LightModeOutlinedIcon />
+          )}
         </IconButton>
-        {vendorName}
+        <IconButton>
+          <NotificationsOutlinedIcon />
+        </IconButton>
+        <IconButton onClick={handleLogout}>
+          <LogoutOutlinedIcon />
+        </IconButton>
       </Box>
     </Box>
-  
-    {/* Icons */}
-    <Box
-      display="flex"
-      justifyContent="flex-end"
-      alignItems="center"
-      marginLeft="10px"
-     
-    >
-      <IconButton onClick={colorMode.toggleColorMode}>
-        {theme.palette.mode === "dark" ? (
-          <DarkModeOutlinedIcon />
-        ) : (
-          <LightModeOutlinedIcon />
-        )}
-      </IconButton>
-      <IconButton>
-        <NotificationsOutlinedIcon />
-      </IconButton>
-      <IconButton onClick={handleLogout}>
-        <LogoutOutlinedIcon />
-      </IconButton>
-    </Box>
-  </Box>
-  
   );
 };
 

@@ -1,8 +1,9 @@
-import React, { useContext,useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTheme } from "@mui/material";
 import { ColorModeContext, tokens } from "../../../theme";
 import { AppContext } from "../../../services/AppContext";
 import ReportsBar from "../ReportsBar/ReportsBar";
+import excelIcon from "../../../assets/images/png/ExcellTrans100_98.png";
 import {
   Table,
   TableBody,
@@ -14,7 +15,10 @@ import {
   Typography,
   TablePagination,
   TableSortLabel,
+  IconButton,
 } from "@mui/material";
+import * as XLSX from "xlsx"; // Import the xlsx library
+import DownloadIcon from "@mui/icons-material/Download"; // Import the download icon from Material-UI
 
 const columnMappings = {
   dayWiseDate: "Date",
@@ -91,23 +95,6 @@ const DayWise = () => {
       };
     });
 
-    // Calculate total batteryRunHours in seconds for the last row
-    const totalBatteryRunHours = data.reduce(
-      (sum, row) => sum + (row.batteryRunHours || 0),
-      0
-    );
-
-    // Add a summary row at the end
-    // formattedData.push({
-    //   dayWiseDate: "Total", // Label for the last row
-    //   chargeOrDischargeCycle: "-",
-    //   cumulativeAHIn: "-",
-    //   cumulativeAHOut: "-",
-    //   totalChargingEnergy: "-",
-    //   totalDischargingEnergy: "-",
-    //   batteryRunHours: formatToTime(totalBatteryRunHours), // Total in HH:MM:SS
-    // });
-
     return formattedData;
   };
 
@@ -123,14 +110,44 @@ const DayWise = () => {
   const formattedData = formatData(data);
   const displayedData = sortedData(formattedData);
 
+  const handleDownloadExcel = () => {
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+
+    // Map data to Excel format
+    const excelData = displayedData.map((row) => {
+      return Object.keys(row).map((key) => {
+        return row[key] !== undefined && row[key] !== null ? row[key] : "No Data";
+      });
+    });
+
+    // Add headers to the Excel data
+    const headers = Object.keys(formattedData[0]).map((key) => columnMappings[key] || key);
+    excelData.unshift(headers);
+
+    // Create a worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "DayWise Data");
+
+    // Generate Excel file and trigger download
+    XLSX.writeFile(workbook, "DayWise_Data.xlsx");
+  };
+
   return (
     <div>
-       <ReportsBar pageType="daywise" />
+      {/* Header with Excel Download Icon */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+        <ReportsBar pageType="daywise" />
+        <IconButton onClick={handleDownloadExcel} color="primary" aria-label="Download Excel">
+          <img src={excelIcon} alt="Download Excel" style={{ width: "24px", height: "24px" }} />
+        </IconButton>
+      </div>
 
-       <Typography variant="h4" gutterBottom align="center">
-  DayWise Reports
-</Typography>
-
+      <Typography variant="h4" gutterBottom align="center">
+        DayWise Reports
+      </Typography>
 
       {formattedData && formattedData.length > 0 ? (
         <>

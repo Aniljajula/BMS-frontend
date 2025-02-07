@@ -1,4 +1,4 @@
-import React, { useContext,useState } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "../../../services/AppContext";
 import {
   Box,
@@ -12,17 +12,10 @@ import {
   fetchDaywiseBatteryandChargerdetails,
   fetchAlarmsBatteryandChargerdetails,
 } from "../../../services/apiService";
-import { ColorModeContext, tokens } from "../../../theme.js";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 
 const ReportsBar = ({ pageType }) => {
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const colorMode = useContext(ColorModeContext);
 
   const {
     siteOptions,
@@ -39,56 +32,72 @@ const ReportsBar = ({ pageType }) => {
   } = useContext(AppContext);
 
   const [loadingReport, setLoadingReport] = useState(false);
-  
+  const [errors, setErrors] = useState({
+    siteId: false,
+    serialNumber: false,
+    startDate: false,
+    endDate: false,
+  });
 
   const handleSearch = async () => {
-    if (siteId && serialNumber && startDate && endDate) {
-      try {
-        setLoadingReport(true);
+    // Check for empty fields and update errors state
+    const newErrors = {
+      siteId: !siteId,
+      serialNumber: !serialNumber,
+      startDate: !startDate,
+      endDate: !endDate,
+    };
+    setErrors(newErrors);
 
-        let result;
-        switch (pageType) {
-          case "historical":
-            result = await fetchHistoricalBatteryandChargerdetails(
-              serialNumber,
-              siteId,
-              startDate,
-              endDate
-            );
-            break;
+    // Stop execution if any field is empty
+    if (!siteId || !serialNumber || !startDate || !endDate) {
+      return;
+    }
 
-          case "daywise":
-            result = await fetchDaywiseBatteryandChargerdetails(
-              serialNumber,
-              siteId,
-              startDate,
-              endDate
-            );
-            break;
+    try {
+      setLoadingReport(true);
 
-          case "alarms":
-            result = await fetchAlarmsBatteryandChargerdetails(
-              serialNumber,
-              siteId,
-              startDate,
-              endDate
-            );
-            break;
+      let result;
+      switch (pageType) {
+        case "historical":
+          result = await fetchHistoricalBatteryandChargerdetails(
+            serialNumber,
+            siteId,
+            startDate,
+            endDate
+          );
+          break;
 
-          default:
-            throw new Error("Invalid page type");
-        }
+        case "daywise":
+          result = await fetchDaywiseBatteryandChargerdetails(
+            serialNumber,
+            siteId,
+            startDate,
+            endDate
+          );
+          break;
 
-        setData(result); // Update report data
-        setLoadingReport(false);
-      } catch (error) {
-        console.error("Error during search:", error);
-        setLoadingReport(false);
+        case "alarms":
+          result = await fetchAlarmsBatteryandChargerdetails(
+            serialNumber,
+            siteId,
+            startDate,
+            endDate
+          );
+          break;
+
+        default:
+          throw new Error("Invalid page type");
       }
-    } else {
-      console.error("Please select all fields.");
+
+      setData(result); // Update report data
+    } catch (error) {
+      console.error("Error during search:", error);
+    } finally {
+      setLoadingReport(false);
     }
   };
+
   const renderHighlightedOption = (props, option, value) => (
     <li
       {...props}
@@ -100,11 +109,13 @@ const ReportsBar = ({ pageType }) => {
       {option}
     </li>
   );
+
   return (
     <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" p={2} gap={2}>
       {/* Filters and Search Section */}
       <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap={2}>
-      <Autocomplete
+        {/* Site ID */}
+        <Autocomplete
           disablePortal
           disableClearable
           options={siteOptions.map((site) => site.siteId)}
@@ -123,11 +134,13 @@ const ReportsBar = ({ pageType }) => {
                 },
               }}
               fullWidth
+              error={errors.siteId}
+              helperText={errors.siteId ? "Please enter Site ID" : ""}
               sx={{
                 "& .MuiInputBase-root": {
                   fontWeight: "bold",
-                  height: "40px", // Adjust the height here
-                  marginTop:'5px'
+                  height: "40px",
+                  marginTop: "5px",
                 },
               }}
             />
@@ -155,11 +168,13 @@ const ReportsBar = ({ pageType }) => {
                 },
               }}
               fullWidth
+              error={errors.serialNumber}
+              helperText={errors.serialNumber ? "Please enter Serial Number" : ""}
               sx={{
                 "& .MuiInputBase-root": {
                   fontWeight: "bold",
-                  height: "40px", // Adjust the height here
-                  marginTop:'5px'
+                  height: "40px",
+                  marginTop: "5px",
                 },
               }}
             />
@@ -167,9 +182,9 @@ const ReportsBar = ({ pageType }) => {
           sx={{ width: "150px" }}
         />
 
+        {/* Start Date */}
         <TextField
           label="Start Date"
-          
           type="date"
           value={startDate?.split("%")[0] || ""}
           onChange={(e) => {
@@ -177,51 +192,54 @@ const ReportsBar = ({ pageType }) => {
             setStartDate(updatedDate);
           }}
           fullWidth
-              sx={{
-                width: 200,
-                "& .MuiInputBase-root": {
-                  fontWeight: "bold",
-                  height: "40px", // Adjust the height here
-                  marginTop: "5px",
-                },
-                "& .MuiInputLabel-root": {
-                  fontWeight: "bold",
-                },
-              }}
-              InputLabelProps={{
-                shrink: true,
-              }}
+          error={errors.startDate}
+          helperText={errors.startDate ? "Please select Start Date" : ""}
+          sx={{
+            width: 200,
+            "& .MuiInputBase-root": {
+              fontWeight: "bold",
+              height: "40px",
+              marginTop: "5px",
+            },
+            "& .MuiInputLabel-root": {
+              fontWeight: "bold",
+            },
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
         />
 
-            <TextField
-              label="End Date"
-              type="date"
-              value={endDate?.split("%")[0] || ""}
-              onChange={(e) => setEndDate(e.target.value + "%2023:59:59")}
-              fullWidth
-              sx={{
-                width: 200,
-                "& .MuiInputBase-root": {
-                  fontWeight: "bold",
-                  height: "40px", // Adjust the height here
-                  marginTop: "5px",
-                },
-                "& .MuiInputLabel-root": {
-                  fontWeight: "bold",
-                },
-              }}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
+        {/* End Date */}
+        <TextField
+          label="End Date"
+          type="date"
+          value={endDate?.split("%")[0] || ""}
+          onChange={(e) => setEndDate(e.target.value + "%2023:59:59")}
+          fullWidth
+          error={errors.endDate}
+          helperText={errors.endDate ? "Please select End Date" : ""}
+          sx={{
+            width: 200,
+            "& .MuiInputBase-root": {
+              fontWeight: "bold",
+              height: "40px",
+              marginTop: "5px",
+            },
+            "& .MuiInputLabel-root": {
+              fontWeight: "bold",
+            },
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
 
-
+        {/* Search Button */}
         <IconButton onClick={handleSearch} disabled={loadingReport}>
           <SearchIcon />
         </IconButton>
       </Box>
-
-    
     </Box>
   );
 };

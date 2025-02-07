@@ -8,8 +8,10 @@ import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-
+import * as XLSX from "xlsx";
 import SearchIcon from "@mui/icons-material/Search";
+import excelIcon from "../../../assets/images/png/ExcellTrans100_98.png";
+
 
 import 'react-datetime/css/react-datetime.css';
 import {
@@ -174,10 +176,44 @@ const Monthly = () => {
   const formattedData = formatData(data);
   const displayedData = sortedData(formattedData);
 
+  // Function to handle Excel download
+    const handleDownloadExcel = () => {
+      // Create a new workbook
+      const workbook = XLSX.utils.book_new();
+  
+      // Map data to Excel format
+      const excelData = displayedData.map((row) => {
+        return Object.keys(row).map((key) => {
+          if (key === "packetDateTime" || key === "serverTime") {
+            return TimeFormat(row[key]);
+          } else if (key === "dcVoltageOLN") {
+            return row[key] === 0 ? "Low" : row[key] === 1 ? "Normal" : row[key] === 2 ? "Over" : row[key];
+          } else if (typeof row[key] === "boolean") {
+            return row[key] ? "Fail" : "Normal";
+          } else {
+            return row[key] !== undefined && row[key] !== null ? row[key] : "No Data";
+          }
+        });
+      });
+  
+      // Add headers to the Excel data
+      const headers = Object.keys(formattedData[0]).map((key) => columnMappings[key] || key);
+      excelData.unshift(headers);
+  
+      // Create a worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+  
+      // Add the worksheet to the workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Historical Data");
+  
+      // Generate Excel file and trigger download
+      XLSX.writeFile(workbook, "Monthly_Data.xlsx");
+    };
+  
+
 
   return (
-    <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" p={2} gap={2} >
-      
+    <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" p={2} gap={2}>
       {/* Grid 1: Site ID, Serial Number, Year and Month, Search */}
       <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap={2}>
         <Autocomplete
@@ -186,8 +222,11 @@ const Monthly = () => {
           options={siteOptions.map((site) => site.siteId)}
           value={siteId}
           onChange={(event, newValue) => setSiteId(newValue)}
-          renderInput={(params) => <TextField {...params} label="Site ID" 
-          fullWidth
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Site ID"
+              fullWidth
               sx={{
                 width: 200,
                 "& .MuiInputBase-root": {
@@ -202,18 +241,22 @@ const Monthly = () => {
               InputLabelProps={{
                 shrink: true,
               }}
-          />}
+            />
+          )}
           sx={{ width: 200 }}
         />
-
+  
         <Autocomplete
           disablePortal
           disableClearable
           options={serialNumberOptions}
           value={serialNumber}
           onChange={(event, newValue) => setSerialNumber(newValue)}
-          renderInput={(params) => <TextField {...params} label="Serial Number"
-          fullWidth
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Serial Number"
+              fullWidth
               sx={{
                 width: 200,
                 "& .MuiInputBase-root": {
@@ -227,16 +270,17 @@ const Monthly = () => {
               }}
               InputLabelProps={{
                 shrink: true,
-              }} />}
+              }}
+            />
+          )}
           sx={{ width: 200 }}
         />
-
-<TextField
+  
+        <TextField
           label="Month"
           type="month"
           value={month ? `${year}-${month}` : ""}
           onChange={(e) => {
-            // Extract the month number from the input value and store only the month (e.g., 12 for December)
             const selectedDate = e.target.value; // "YYYY-MM"
             const selectedMonth = selectedDate.split("-")[1]; // Extract month number (e.g., "12")
             setMonth(selectedMonth); // Set only the month (e.g., "12")
@@ -258,12 +302,12 @@ const Monthly = () => {
             shrink: true,
           }}
         />
-
+  
         <IconButton onClick={handleSearch}>
           <SearchIcon />
         </IconButton>
       </Box>
-
+  
       {/* Grid 2: Color Mode Toggle, Notification Icon, Logout Icon */}
       <Box display="flex" justifyContent="flex-end" alignItems="center" marginLeft="10px">
         {/* <IconButton onClick={colorMode.toggleColorMode}>
@@ -279,92 +323,95 @@ const Monthly = () => {
         {/* <IconButton onClick={handleLogout}>
           <LogoutOutlinedIcon />
         </IconButton> */}
+  
+        {/* Excel Download Icon */}
+        <IconButton onClick={handleDownloadExcel} color="primary" aria-label="Download Excel">
+  <img src={excelIcon} alt="Download Excel" style={{ width: "24px", height: "24px" }} />
+</IconButton>
+
       </Box>
-      
-      {formattedData && formattedData.length > 0 ? (  
+  
+      {formattedData && formattedData.length > 0 ? (
         <>
-         <Box>
-  <TableContainer
-    component={Paper}
-    sx={{
-      marginTop: 1,
-      overflowX: "auto",
-      borderRadius: "8px",
-      width: "136%",
-       border: "1px solid black"
-      
-    }}
-  >
-    <Table >
-      {/* Table Header */}
-      <TableHead>
-        <TableRow>
-          {Object.keys(formattedData[0]).map((key) => (
-            <TableCell
-              key={key}
+          <Box>
+            <TableContainer
+              component={Paper}
               sx={{
-                fontWeight: "bold",
-                backgroundColor: "#d82b27",
-                color: "#ffffff",
+                marginTop: 1,
+                overflowX: "auto",
+                borderRadius: "8px",
+                width: "136%",
+                border: "1px solid black",
               }}
             >
-              <TableSortLabel
-                active={orderBy === key}
-                direction={orderBy === key ? order : "asc"}
-                onClick={() => handleRequestSort(key)}
-                aria-label={`Sort by ${columnMappings[key] || key}`}
-              >
-                {columnMappings[key] || key}
-              </TableSortLabel>
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-
-      {/* Table Body */}
-      <TableBody>
-        {displayedData
-          .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-          .map((row, index) => (
-            <TableRow
-              key={index}
-              sx={{
-                "&:hover": { backgroundColor: "#e1e2fe" },
-              }}
-            >
-              {Object.values(row).map((value, idx) => (
-                <TableCell key={idx}>{value}</TableCell>
-              ))}
-            </TableRow>
-          ))}
-      </TableBody>
-    </Table>
-  </TableContainer>
-
-  {/* Pagination Outside Table */}
-  <Box sx={{ display: "flex", flexDirection:"row", justifyContent: "flex-end" }}>
-  <TablePagination
-    rowsPerPageOptions={[5, 10, 15]}
-    component="div"
-    count={formattedData.length}
-    rowsPerPage={rowsPerPage}
-    page={page}
-    onPageChange={handleChangePage}
-    onRowsPerPageChange={handleChangeRowsPerPage}
-  />
-</Box>
-
-</Box>
-
+              <Table>
+                {/* Table Header */}
+                <TableHead>
+                  <TableRow>
+                    {Object.keys(formattedData[0]).map((key) => (
+                      <TableCell
+                        key={key}
+                        sx={{
+                          fontWeight: "bold",
+                          backgroundColor: "#d82b27",
+                          color: "#ffffff",
+                        }}
+                      >
+                        <TableSortLabel
+                          active={orderBy === key}
+                          direction={orderBy === key ? order : "asc"}
+                          onClick={() => handleRequestSort(key)}
+                          aria-label={`Sort by ${columnMappings[key] || key}`}
+                        >
+                          {columnMappings[key] || key}
+                        </TableSortLabel>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+  
+                {/* Table Body */}
+                <TableBody>
+                  {displayedData
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          "&:hover": { backgroundColor: "#e1e2fe" },
+                        }}
+                      >
+                        {Object.values(row).map((value, idx) => (
+                          <TableCell key={idx}>{value}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+  
+            {/* Pagination Outside Table */}
+            <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 15]}
+                component="div"
+                count={formattedData.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Box>
+          </Box>
         </>
       ) : (
         <Typography variant="body1" sx={{ marginTop: 2 }}>
           No data available
         </Typography>
       )}
-      </Box>
-    
+    </Box>
   );
+  
 
   
 };
