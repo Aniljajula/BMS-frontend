@@ -51,8 +51,8 @@ const Battery = ({ socValue, socState }) => {
       <Box
         sx={{
           position: "relative",
-          width: "40px",
-          height: "70px",
+          width: "30px",
+          height: "60px",
           borderTop: "1px solid #000",
           borderLeft: "1px solid #000",
           borderRight: "3px solid #000",

@@ -1,7 +1,7 @@
-import React from "react";
+import React,{useContext} from "react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import {Tooltip,useTheme,Box,Typography,Grid, Card, CardContent} from "@mui/material";
+import {Grid,Tooltip,useTheme,Box,Typography,Grid, Card, CardContent} from "@mui/material";
 import {tokens} from "../theme"
 import { AlertTriangle, BatteryFull ,Power} from 'lucide-react';
 import fuse from '.././enums/electronic-fuse.png'
@@ -30,10 +30,22 @@ import {
   NotificationsActive as Buzzer
 } from '@mui/icons-material';
 import {Charging,Discharging,FuseIcon} from '../enums/ThresholdValues'
-export default Alerts = ({ charger ,bmsalarms }) => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+import { AppContext } from "../services/AppContext";
+export default Alerts = () => {
 
+  const {
+        data,
+        charger,
+      }=useContext(AppContext)
+    const device = data[0];
+    if (!device || !charger[0]) {
+      
+      console.log(charger[0] +" charger")
+      return <div></div>;
+    }
+    const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+const {bmsalarms}=device
     const {
     bankCycleDC, // Battery Status
     stringVoltageLHN, // String Voltage
@@ -50,7 +62,6 @@ export default Alerts = ({ charger ,bmsalarms }) => {
     filterFuse,
     dcVoltageOLN,
     outputFuse,
-    acUnderVoltage,
     chargerLoad,
     alarmSupplyFuse,
     chargerTrip,
@@ -59,10 +70,10 @@ export default Alerts = ({ charger ,bmsalarms }) => {
     batteryCondition,
     testPushButton,
     resetPushButton
-      }=charger[0]
+      }=charger[0].chargerStatusData;
   const detailsMap = {
     bankCycleDC: "Battery status",
-    cellCommunicationFD: "String Communication",
+    cellCommunicationFD: "String Commun",
     buzzer: "Buzzer",
     cellVoltageLHN: "Cell Voltage",
     inputMains: "Input Mains",
@@ -79,9 +90,11 @@ export default Alerts = ({ charger ,bmsalarms }) => {
     batteryCondition: "Battery Condition",
     resetPushButton: "Reset Button",
   };
-  const combinedData = { ...bmsalarms, ...charger[0] };
+
+  const combinedData = { ...bmsalarms, ...charger[0].chargerStatusData };
+  console.log(combinedData+" combined data")
   const getSeverityFromBit = (bit) => {
-    console.log("Bit Value Received:", bit);
+  
     switch (bit) {
       case 0:
         return { status: "Low", severity: "low" };
@@ -100,13 +113,30 @@ export default Alerts = ({ charger ,bmsalarms }) => {
     let IconComponent = null;
 
     if (
-      key === "cellVoltageLHN" ||
-      key === "dcVoltageOLN" ||
+      key === "cellVoltageLHN" 
+    ) {
+      const bitValue = combinedData[key];
+      ({ status, severity } = getSeverityFromBit(bitValue));
+    } else if (
+    
+      key === "dcVoltageOLN" 
+ 
+    ) {
+      
+      const bitValue = combinedData[key];
+      ({ status, severity } = getSeverityFromBit(bitValue));
+      
+    }
+    
+    else if (
+     
       key === "acVoltageULN"
     ) {
       const bitValue = combinedData[key];
       ({ status, severity } = getSeverityFromBit(bitValue));
-    } else if (key === "chargerTrip") {
+
+    }
+    else if (key === "chargerTrip") {
       status = combinedData[key] ? "Normal" : "Tripped";
       severity = combinedData[key] ? "medium" : "high";
     } else if(key==="bankCycleDC"){
@@ -123,7 +153,7 @@ export default Alerts = ({ charger ,bmsalarms }) => {
       IconComponent = combinedData[key] ?  Discharging: Charging;
     } else if (key === "chargerTrip") {
       IconComponent = ChargerTrip;
-    } else if (key === "acVoltageC") {
+    } else if (key === "acVoltageULN") {
       IconComponent = ACVoltage;
     } else if (key === "dcVoltageOLN") {
       IconComponent = DCVoltage;
@@ -186,32 +216,16 @@ export default Alerts = ({ charger ,bmsalarms }) => {
       alignItems="center"
       justifyContent="center"
       width="100%"
+      height="100%"
+      pb={4}
     >
-      <Box
-        display="flex"
-        alignItems="center"
-        width="100%"
-        justifyContent="center"
-      >
-        <Typography
-          mt="5px"
-          variant="h3"
-          sx={{
-            textAlign: "center",
-            fontSize: 24,
-            fontWeight: "bold",
-          }}
-        >
-          Alarms
-        </Typography>
-      </Box>
 
       <Grid
         container
-        spacing={2}
+        spacing={1}
         justifyContent="center"
         alignItems="center"
-        sx={{ padding: 2, width: "100%" }}
+        sx={{ padding: 1, width: "100%" }}
       >
         {alerts.map((alert) => (
           <Grid item xs={12} sm={6} md={4} lg={2} key={alert.id}>
@@ -222,15 +236,15 @@ export default Alerts = ({ charger ,bmsalarms }) => {
                 transition: "transform 0.3s ease",
                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                 cursor: "pointer",
-                minWidth: 80,
-                height: 90,
+                minWidth: 60,
+                height: 70,
               }}
               onMouseOver={(e) =>
                 (e.currentTarget.style.transform = "scale(1.03)")
               }
               onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
-              <CardContent style={{ textAlign: "center", padding: 5 }}>
+              <CardContent style={{ textAlign: "center", padding: 3 }}>
                 <div>
                   {alert.IconComponent ? (
                     <alert.IconComponent />
@@ -250,13 +264,13 @@ export default Alerts = ({ charger ,bmsalarms }) => {
                 </div>
                 <Typography
                   variant="subtitle1"
-                  sx={{ fontSize: 12, fontWeight: "bold" }}
+                  sx={{ fontSize: 10,}}
                 >
                   {alert.status}
                 </Typography>
                 <Typography
                   variant="body2"
-                  sx={{ fontSize: 12, marginBottom: 1 }}
+                  sx={{ fontSize: 9, marginBottom: 3, fontWeight: "bold"  }}
                 >
                   {alert.details}
                 </Typography>

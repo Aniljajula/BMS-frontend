@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, Button, Modal,useTheme, Container} from "@mui/material";
+import { Grid,Box, Paper, Typography, Button, Modal,useTheme, Container} from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import { tokens } from "../../theme";
 import ManufacturerDetails from "../../LiveDataComponents/ManufacturerDetails";
@@ -30,7 +30,7 @@ const Bar = () => {
   // if (data.length === 0) return <div> <Topbar /></div>;
   const {packetDateTime}=data || "";
   const device = data[0];
-  if (!device) return <div> <Topbar /></div>;
+  if (!device || !charger) return <div> <Topbar /></div>;
 
   const {
     id,
@@ -51,7 +51,7 @@ const Bar = () => {
     area
   } = location || {}; // Handle case where location itself might be undefined
   
- 
+     
   const {
     deviceId, 
     bmsManufacturerID, 
@@ -84,31 +84,7 @@ const Bar = () => {
     bmsalarms,
     serverTime
   } = device;
-  const alertData = {
-    bankCycleDC: true,
-    stringVoltageLHN: 2, // High
-    cellCommunicationFD: true,
-    socLN: true,
-    stringCurrentHN: true,
-    ambientTemperatureHN: true,
-    buzzer: false,
-    cellVoltageLHN: 0, // Normal
-      inputMains: true,
-      inputFuse: true,
-      rectifierFuse: true,
-      filterFuse: true,
-      dcVoltageOLN: 0,
-      outputFuse: true,
-      acUnderVoltage: true,
-      chargerLoad: true,
-      alarmSupplyFuse: true,
-      chargerTrip: true,
-      outputMccb: true,
-      acVoltageC: 0,
-      batteryCondition: true,
-      testPushButton: true,
-      resetPushButton: true
-    };
+
 
   return (
     <Box
@@ -130,205 +106,117 @@ const Bar = () => {
     </Box>
   
     {/* Scrollable Content */}
-    <Box
-  sx={{
-    gridRow: "2",
-    overflowY: "auto", // Enable vertical scrolling
-    display: "grid",
-    gridTemplateColumns: "repeat(5, 1fr)",
-    gridAutoRows: " repeat(5, auto)", // Ensure consistent row heights
-    gap: "10px", // Add spacing between grids
-    padding: "10px", // Add padding to avoid content sticking to edges
-    marginBottom:"30px"
-  }}
-  >
-  {/* Legends */}
-  <Box
-    sx={{
-      gridColumn: "1 / 6",
-      padding: "2px",
-    }}
-  >
-    <Legends cellVoltageTemperatureData={cellVoltageTemperatureData}/>
-  </Box>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        overflowY: 'auto',
+        padding: '10px 10px 100px 10px',
+        marginBottom: '30px',
+      }}
+    >
+      {/* Legends */}
+      <Grid item xs={12}>
+        <Paper elevation={8}>
+          <Legends cellVoltageTemperatureData={cellVoltageTemperatureData} />
+        </Paper>
+      </Grid>
 
-  {/* Cell */}
-  <Box
-    sx={{
-      gridColumn: "1 / 4",
-      height: "200px", // Explicit height
-      overflow: "auto", // Scrollable if content overflows
-    }}
-  ><Paper elevation={8} sx={{  height: "200px"}} >
-    <CellsData data={cellVoltageTemperatureData} siteId={siteId}
-    serialNumber={serialNumber} bmsalarms={bmsalarms}/>
-    </Paper>
-  </Box>
-  
+      {/* CellsData and MapWithMarker */}
+      <Grid item container spacing={1}>
+        <Grid item xs={7}>
+          <Paper elevation={8} sx={{ height: '200px', overflow: 'auto' }}>
+            <CellsData
+              data={cellVoltageTemperatureData}
+              siteId={siteId}
+              serialNumber={serialNumber}
+              bmsalarms={bmsalarms}
+            />
+          </Paper>
+        </Grid>
+        <Grid item xs={5}>
+          <Paper elevation={8}>
+            <MapWithMarker
+              locationName={locationName}
+              latitude={latitude}
+              longitude={longitude}
+              vendorName={vendorName}
+              batteryAHCapacity={batteryAHCapacity}
+            />
+          </Paper>
+        </Grid>
+      </Grid>
 
-  {/* Map */}
-  <Box
-    sx={{
-      gridColumn: "4 / 6",
-    }}
-  ><Paper elevation={8}>
-    <MapWithMarker
-      locationName={locationName}
-      latitude={latitude}
-      longitude={longitude}
-      vendorName={vendorName}
-      batteryAHCapacity={batteryAHCapacity}
-    />
-    </Paper>
-  </Box>
+      {/* InstantNCharger */}
+      <Grid item xs={12}>
+        <InstantNCharger
+          voltage={stringvoltage}
+          current={instantaneousCurrent}
+          soc={socLatestValueForEveryCycle}
+          dod={dodLatestValueForEveryCycle}
+          ambientTemperature={ambientTemperature}
+          charger={charger}
+          bmsalarms={bmsalarms}
+        />
+      </Grid>
 
-  {/* new grid */}
-  <Box
-    sx={{
-      gridColumn: "1 / 6",
-      //backgroundColor: colors.primary[400],
-      // border: "1px solid black",
-    }}
-  >
-    {/* <Instantaneous
-      voltage={stringvoltage}
-      current={instantaneousCurrent}
-      soc={socLatestValueForEveryCycle}
-      dod={dodLatestValueForEveryCycle}
-      ambientTemperature={ambientTemperature}
-    /> */}
-
-    <InstantNCharger
-     voltage={stringvoltage}
-     current={instantaneousCurrent}
-     soc={socLatestValueForEveryCycle}
-     dod={dodLatestValueForEveryCycle}
-     ambientTemperature={ambientTemperature}
-     charger={charger}
-     bmsalarms={bmsalarms}
-    />
-    
-  </Box>
-
-  {/* Alarms */}
-  <Box
-    sx={{
-      gridColumn: "1 / 4",
-      gridRow: "span 2", // Spanning three rows for proper height
-      width: "550px"
-
-    }}
-  ><Paper elevation={8}>
-      <Alerts  charger={charger}  bmsalarms={bmsalarms}/>
-    </Paper>
-  </Box>
-
-  {/* Manufacturer */}
-  <Box
-    sx={{
-      gridColumn: "4 / 5",
-      width : "270px"
-    }}
-  ><Paper elevation={8}>
-    <ManufacturerDetails
-      firstUsedDate={firstUsedDate}
-      batterySerialNumber={batterySerialNumber}
-      batteryBankType={batteryBankType}
-      serialNumber={serialNumber}
-      ahCapacity={ahCapacity}
-      manifactureName={manifactureName}
-      individualCellVoltage={individualCellVoltage}
-      designVoltage={designVoltage}
-    />
-  </Paper>
-  </Box>
-
-  {/* Discharge */}
-  <Box
-    sx={{
-      gridColumn: "5 / 6",
-     
-    }}
-  >
- 
-    {/* <Instantaneous
-      voltage={stringvoltage}
-      current={instantaneousCurrent}
-      soc={socLatestValueForEveryCycle}
-      dod={dodLatestValueForEveryCycle}
-      ambientTemperature={ambientTemperature}
-    /> */}
-    <Paper elevation={8}>
-    <Cummulative
-      chargeDischargeCycles={chargeOrDischargeCycle}
-      ampereHourIn={cumulativeAHIn}
-      ampereHourOut={cumulativeAHOut}
-      chargingEnergy={totalChargingEnergy}
-      dischargingEnergy={totalDischargingEnergy}
-      time={batteryRunHours}
-    />
-   </Paper>
-  </Box>
-
-  {/* Charge */}
-  <Box
-    sx={{
-      gridColumn: "4 / 5",
-     
-    }}
-  ><Paper elevation={8}>
-    <ChargeCycleWise
-      PeakChargeCurrent={systemPeakCurrentInChargeOneCycle}
-      AverageChargeCurrent={averageChargingCurrent}
-      AmpereHourIn={ahInForOneChargeCycle}
-      totalSeconds={chargeTimeCycle}
-    />
-    </Paper>
-  </Box>
-
-  {/* Instant */}
-  <Box
-    sx={{
-      gridColumn: "5 / 6",
-      
-    }}
-  ><Paper elevation={8}>
-    <DischargeCycleWise
-      peakDischargeCurrent={systemPeakCurrentInDischargeOneCycle}
-      averageDischargingCurrent={averageDischargingCurrent}
-      ahOutForOneDischargeCycle={ahOutForOneDischargeCycle}
-      totalSeconds={dischargeTimeCycle}
-    />
-    </Paper>
-  </Box>
-
-  {/* Charger */}
-  {/* <Box
-    sx={{
-      gridColumn: "4 / 5",
-      backgroundColor: colors.primary[400],
-      border: "1px solid black",
-    }}
-  >
-  <Charger charger={charger} ></Charger>
-  </Box>
-  <Box
-    sx={{
-      gridColumn: "5 / 6",
-      backgroundColor: colors.primary[400],
-      border: "1px solid black",
-    }}
-  >
-    <Cummulative
-      chargeDischargeCycles={chargeOrDischargeCycle}
-      ampereHourIn={cumulativeAHIn}
-      ampereHourOut={cumulativeAHOut}
-      chargingEnergy={totalChargingEnergy}
-      dischargingEnergy={totalDischargingEnergy}
-      time={batteryRunHours}
-    />
-</Box> */}
-  </Box>
+      {/* Alerts, ManufacturerDetails, and Cummulative */}
+      <Grid item container spacing={1}>
+        <Grid item xs={5}>
+          <Paper elevation={8}>
+            <Alerts charger={charger} bmsalarms={bmsalarms} />
+          </Paper>
+        </Grid>
+        <Grid item xs={3.5}>
+          <Grid item container  direction="column" spacing={0.1}>
+            <Grid item xs={4}>
+              <Paper elevation={8}>
+              <DischargeCycleWise  peakDischargeCurrent={systemPeakCurrentInDischargeOneCycle}
+               totalSeconds={dischargeTimeCycle}
+              />
+              </Paper>
+            </Grid>
+            <Grid item xs={8}>
+              <Paper elevation={8}>
+                <ManufacturerDetails
+                  firstUsedDate={firstUsedDate}
+                  batterySerialNumber={batterySerialNumber}
+                  batteryBankType={batteryBankType}
+                  serialNumber={serialNumber}
+                  ahCapacity={ahCapacity}
+                  manifactureName={manifactureName}
+                  individualCellVoltage={individualCellVoltage}
+                  designVoltage={designVoltage}
+                />
+              </Paper>
+            </Grid>
+          </Grid>  
+        </Grid>
+        <Grid item xs={3.5}>
+          <Grid item container  direction="column" spacing={0.1}>
+            <Grid item xs={4}>
+              <Paper elevation={8}>
+              < ChargeCycleWise  PeakChargeCurrent={systemPeakCurrentInChargeOneCycle}
+               totalSeconds={chargeTimeCycle}
+              />
+              </Paper>
+            </Grid>
+            <Grid item xs={8}>
+            <Paper elevation={8}>
+              <Cummulative
+                chargeDischargeCycles={chargeOrDischargeCycle}
+                ampereHourIn={cumulativeAHIn}
+                ampereHourOut={cumulativeAHOut}
+                chargingEnergy={totalChargingEnergy}
+                dischargingEnergy={totalDischargingEnergy}
+                time={batteryRunHours}
+              />
+            </Paper>
+            </Grid>
+          </Grid>  
+        </Grid>
+      </Grid>
+    </Grid>
   </Box>
   
   );

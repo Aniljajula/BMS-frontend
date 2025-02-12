@@ -113,9 +113,14 @@ const Historical = () => {
 
   // Function to handle Excel download
   const handleDownloadExcel = () => {
+    if (!formattedData || formattedData.length === 0) {
+      alert("No data available to export!");
+      return;
+    }
+  
     // Create a new workbook
     const workbook = XLSX.utils.book_new();
-
+  
     // Map data to Excel format
     const excelData = displayedData.map((row) => {
       return Object.keys(row).map((key) => {
@@ -130,21 +135,23 @@ const Historical = () => {
         }
       });
     });
-
-    // Add headers to the Excel data
-    const headers = Object.keys(formattedData[0]).map((key) => columnMappings[key] || key);
-    excelData.unshift(headers);
-
+  
+    // Add headers only if data exists
+    if (formattedData.length > 0) {
+      const headers = Object.keys(formattedData[0]).map((key) => columnMappings[key] || key);
+      excelData.unshift(headers);
+    }
+  
     // Create a worksheet
     const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-
+  
     // Add the worksheet to the workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, "Historical Data");
-
+  
     // Generate Excel file and trigger download
     XLSX.writeFile(workbook, "Historical_Data.xlsx");
   };
-
+  
   return (
     <div>
       {/* Header with Excel Download Icon */}

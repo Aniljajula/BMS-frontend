@@ -1,63 +1,92 @@
-import React from "react";
-import { Card, CardContent, Typography, Box, useTheme } from "@mui/material";
-import { tokens } from "../theme"; // Assuming you have a theme file
-import BatteryFullIcon from "@mui/icons-material/BatteryFull"; // Energy icon
+import React, { useContext} from 'react'
+import { tokens } from '../theme';
+import { Card, CardHeader, CardContent, Typography, Box,useTheme } from "@mui/material";
+import BatteryChargingFullIcon from "@mui/icons-material/BatteryChargingFull";
+import BatteryFullIcon from "@mui/icons-material/BatteryFull";
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 
-export default EnergyCard = ({ energyValue, unit = "kWh" }) => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+
+
+
+import { Box, Paper } from '@mui/material';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LabelList,
+} from "recharts";
+import { AppContext } from "../services/AppContext";
+
+const Energycard =()  => {
+  
+    const {
+      data,
+    }=useContext(AppContext)
+
+    const device = data[0];
+  if (!device) return <div> 
+  </div>;
+
+const {
+  ahInForOneChargeCycle,ahOutForOneDischargeCycle}=device
+  // Constants for Ampere-Hour values
+  const ampereHourIn = ahInForOneChargeCycle;
+  const ampereHourOut =  ahOutForOneDischargeCycle;
+
+  // Data for the Ampere-Hour Comparison Chart
+  const ampereHourComparisonData = [
+    {
+      name: "AH In",
+      value: ampereHourIn,
+    },
+    {
+      name: "AH Out",
+      value: ampereHourOut,
+    },
+  ];
 
   return (
-    <Card
-      sx={{
-        p: 2, // Padding
-        borderRadius: 3, // Rounded corners
-        bgcolor: colors.primary[400], // Background color
-        maxWidth: 250, // Limit card width
-        textAlign: "center", // Center align content
-        margin: "0 auto", // Center the card
-      }}
-    >
-      <CardContent>
-        {/* Icon Section */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            mb: 2, // Margin below the icon
-          }}
-        >
-          <BatteryFullIcon
-            sx={{
-              fontSize: "3rem", // Icon size
-              color: colors.greenAccent[500], // Icon color
-            }}
-          />
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {/* Ampere-Hour Comparison Chart */}
+      <Paper elevation={8} sx={{ height: "150px", pt: 1, pb: 1, overflow: "hidden" }}>
+        <Box sx={{ height: "100%", width: "100%", overflow: "hidden" }}>
+          <BarChart
+            width={230}
+            height={134}
+            data={ampereHourComparisonData}
+            margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" tick={{ fontSize: 10, fontWeight: "bold" }} />
+            <YAxis
+              tick={{ fontSize: 10, fontWeight: "bold" }}
+              label={{
+                value: "Ampere-Hour (Ah)",
+                angle: -90,
+                position: "Left",
+                fontSize: 10,
+                fontWeight: "bold",
+              }}
+            />
+            <Tooltip />
+            {/* <Legend
+              layout="vertical"
+              align="right"
+              verticalAlign="middle"
+              wrapperStyle={{ right: 25, fontSize: 10 }}
+            /> */}
+            <Bar dataKey="value" fill="#8884d8" name="Ampere-Hour">
+              <LabelList dataKey="value" position="top" fontSize={10} />{" "}
+            </Bar>
+          </BarChart>
         </Box>
-
-        {/* Energy Value Section */}
-        <Typography
-          variant="h3" // Large font size for the value
-          sx={{
-            fontWeight: "bold",
-            color: colors.grey[100],
-          }}
-        >
-          {energyValue} {unit}
-        </Typography>
-
-        {/* Label Section */}
-        <Typography
-          variant="h6" // Smaller font size for the label
-          sx={{
-            mt: 1, // Margin above the label
-            color: colors.grey[300],
-          }}
-        >
-          Energy
-        </Typography>
-      </CardContent>
-    </Card>
+      </Paper>
+    </Box>
   );
 };
+
+export default Energycard;

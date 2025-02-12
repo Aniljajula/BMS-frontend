@@ -9,19 +9,6 @@ import mfname from "../assets/images/png/mfname.png";
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 function ManufacturerDetails({
   firstUsedDate,
   batterySerialNumber,
@@ -53,6 +40,7 @@ function ManufacturerDetails({
         alignItems="flex-start"
         mt="10px"
         ml="8px"
+       
       >
         <Typography variant="h6" mb="10px">
           <strong>Manufacturer Details</strong>
@@ -73,6 +61,7 @@ function ManufacturerDetails({
               alignItems="center"
               justifyContent="flex-start"
               gap="8px"
+      
             >
               <img 
                 src={iconMap[label]} 

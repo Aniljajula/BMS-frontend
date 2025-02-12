@@ -53,14 +53,16 @@ const CellsData = ({ data, siteId, serialNumber, bmsalarms }) => {
         justifyContent="space-around"
         alignItems="center"
         gap="8px"
-        border={`1px solid ${colors.greenAccent[500]}`}
+        border={`1px solid black`}
         borderRadius="4px"
-        padding="6px"
+        padding="1px"
         sx={{
-         // backgroundColor: colors.primary[500],
+          backgroundColor: colors.primary[500], // Add background color
           position: "sticky",
           top: 0,
           zIndex: 10,
+          boxShadow: `0px 2px 4px ${colors.grey[500]}`, // Add a subtle shadow
+          transition: "background-color 0.3s ease-in-out", // Smooth transition for background
         }}
       >
         {["Pictorial", "Graphical", "Tabular"].map((text, index) => (
@@ -72,8 +74,11 @@ const CellsData = ({ data, siteId, serialNumber, bmsalarms }) => {
             onClick={() => setActiveView(text)}
             sx={{
               cursor: "pointer",
+              padding: "6px 12px", // Add padding for better click area
+              borderRadius: "4px", // Rounded corners for each item
               "&:hover": {
-                color: colors.primary[900],
+                backgroundColor: colors.primary[600], // Hover background color
+                color: "black", // Hover text color
                 transform: "scale(1.05)",
                 transition: "all 0.3s ease-in-out",
               },
@@ -85,7 +90,8 @@ const CellsData = ({ data, siteId, serialNumber, bmsalarms }) => {
                 color:
                   activeView === text
                     ? colors.greenAccent[500]
-                    : colors.grey[300],
+                    : "black",
+                fontWeight: activeView === text ? "bold" : "normal", // Bold text for active view
               }}
             >
               {text}
@@ -94,11 +100,22 @@ const CellsData = ({ data, siteId, serialNumber, bmsalarms }) => {
         ))}
 
         {/* Fullscreen Button */}
-        <IconButton color="secondary" sx={{ ml: 2 }} onClick={toggleFullscreen}>
+        <IconButton
+          color="secondary"
+          sx={{
+            ml: 2,
+            "&:hover": {
+              backgroundColor: colors.primary[600], // Hover background for the button
+              color: colors.greenAccent[500], // Hover icon color
+              transform: "scale(1.1)",
+              transition: "all 0.3s ease-in-out",
+            },
+          }}
+          onClick={toggleFullscreen}
+        >
           <FullscreenIcon />
         </IconButton>
       </Box>
-
       {/* Dynamic Component Rendering */}
       <Box mt={2}>{viewComponents[activeView]}</Box>
 

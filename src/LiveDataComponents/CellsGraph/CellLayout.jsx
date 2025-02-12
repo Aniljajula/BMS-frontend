@@ -210,7 +210,7 @@ const FullScreenOverlay = ({ open, onClose, children }) => {
         left: 0,
         width: '100%',
         height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        // backgroundColor: 'white',
         zIndex: 1300,
         display: 'flex',
         justifyContent: 'center',
@@ -221,7 +221,7 @@ const FullScreenOverlay = ({ open, onClose, children }) => {
         sx={{
           width: '90%',
           height: '90%',
-          backgroundColor: 'black',
+          // backgroundColor: 'white',
           borderRadius: '12px',
           display: 'flex',
           flexDirection: 'column',
@@ -244,7 +244,7 @@ const FullScreenOverlay = ({ open, onClose, children }) => {
             position: 'absolute',
             top: 16,
             right: 16,
-            color: 'white',
+            color: 'black',
           }}
         >
           <CloseIcon />

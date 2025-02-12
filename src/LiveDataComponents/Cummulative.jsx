@@ -76,6 +76,7 @@ export default function Cummulative({
               alignItems="center"
               justifyContent="flex-start"
               gap="8px"
+            
             >
               {/* Render the corresponding image */}
               <img 

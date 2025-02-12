@@ -39,7 +39,7 @@ const Legends = ({ cellVoltageTemperatureData }) => {
             padding="5px"
             border="1px solid #ccc"
             borderRadius="8px"
-            backgroundColor={colors.primary[400]}
+            //backgroundColor={colors.primary[400]}
             sx={{  overflowX: 'auto' }} // Allow horizontal scrolling if needed
         >
             {[

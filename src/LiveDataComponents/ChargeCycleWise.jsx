@@ -1,16 +1,12 @@
 import React from 'react'
 import { Box, Typography,useTheme } from "@mui/material";
 import { tokens } from "../theme.js"
-
+import ct from "../assets/images/png/run hours.png"
+import pcc from "../assets/images/png/Ah capacity.png"
 function ChargeCycleWise({PeakChargeCurrent, AverageChargeCurrent, AmpereHourIn,totalSeconds}) {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    // const rawData = {
-    //     PeakChargeCurrent	: "41 A",
-    //     AverageChargeCurrent	:"0.4647 A",
-    //     AmpereHourIn	:"121.5937 Ah",
-    //     ChargeTime	:"261:36:50"
-    //   };
+ // console.log(PeakChargeCurrent +" peak")
     const ChargeTime = (totalSeconds = 0) => {
       try {
         const hours = Math.floor(totalSeconds / 3600);
@@ -38,7 +34,7 @@ function ChargeCycleWise({PeakChargeCurrent, AverageChargeCurrent, AmpereHourIn,
           mt="10px"
           ml="8px"
         >
-          <Typography variant="h6" mb="10px">
+          <Typography variant="h6">
             <strong>Charge-Cycle-Wise</strong>
           </Typography>
           <Box
@@ -46,13 +42,11 @@ function ChargeCycleWise({PeakChargeCurrent, AverageChargeCurrent, AmpereHourIn,
             flexDirection="column"
           >
             {[
-              { label: "Peak Charge Current", value: PeakChargeCurrent },
-              { label: "Avg Charge Current", value: AverageChargeCurrent },
-              { label: "Ampere HourIn", value: AmpereHourIn},
-              { label: "Charge Time", value: ChargeTime(totalSeconds)},
+              { label: "Peak Charge Current", value: PeakChargeCurrent, icon:pcc },
+              { label: "Charge Time", value: ChargeTime(totalSeconds), icon:ct},
              
         
-            ].map(({ label, value }, index) => (
+            ].map(({ label, value , icon}, index) => (
              <Box
                 key={index}
                 display="flex"
@@ -60,6 +54,13 @@ function ChargeCycleWise({PeakChargeCurrent, AverageChargeCurrent, AmpereHourIn,
                 justifyContent="flex-start"
                 gap="8px" // Adjust space between elements
               >
+                {icon && (
+                <img
+                  src={icon}
+                  alt={label}
+                  style={{ width: "18px", height: "18px" }}
+                />
+              )}
                 <Typography
                   variant="h5"
                   fontWeight="bold"

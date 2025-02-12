@@ -4,6 +4,8 @@ import {
   Typography,
   TextField,
   Button,
+  
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -20,6 +22,9 @@ import axios from 'axios';
 import Autocomplete from '@mui/material/Autocomplete';
 import { AppContext } from "../../services/AppContext";
 import { tokens } from "../../theme";
+import SearchIcon from '@mui/icons-material/Search';
+
+
 const TicketTable = () => 
   {
   const [siteId, setSiteId] = useState('CHARAN4048')
@@ -267,44 +272,88 @@ const TicketTable = () =>
   
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box display="flex" flexDirection="column" alignItems="center" p={2} >
-        <Box display="flex" gap={2} mb={2} >
-          <Autocomplete
-            //disablePortal
-            //disableClearable
-            freeSolo
-            options={siteOptions.map((site) => site.siteId)}
-            value={siteId}
-            onChange={(event, newValue) => setSiteId(newValue)}
-            renderInput={(params) => <TextField {...params} label="Site ID" />}
-            sx={{ width: 200, height:"4opx" }}
+  <Box display="flex" flexDirection="column" alignItems="center" p={2}>
+    <Box display="flex" gap={2} mb={2}>
+      {/* Autocomplete for Site ID */}
+      <Autocomplete
+        freeSolo
+        options={siteOptions.map((site) => site.siteId)}
+        value={siteId}
+        onChange={(event, newValue) => setSiteId(newValue)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Site ID"
+            sx={{
+              width: 200,
+              "& .MuiInputBase-root": {
+                height: "40px",
+              },
+            }}
           />
-          <DatePicker
-            label="Start Date"
-            value={startDate}
-            onChange={(date) => setStartDate(date)}
-            renderInput={(params) => <TextField {...params} />}
+        )}
+      />
+      
+      {/* Start Date Picker */}
+      <DatePicker
+        label="Start Date"
+        value={startDate}
+        onChange={(date) => setStartDate(date)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            sx={{
+              width: 200,
+              "& .MuiInputBase-root": {
+                height: "40px",
+                display: "flex",
+                alignItems: "center", // Ensures text is aligned properly
+              },
+              "& input": {
+                height: "40px",
+                padding: "10px", // Adjust padding if needed
+              },
+            }}
           />
-          <DatePicker
-            label="End Date"
-            value={endDate}
-            onChange={(date) => setEndDate(date)}
-            renderInput={(params) => <TextField {...params} />}
+        )}
+      />
+      
+      {/* End Date Picker */}
+      <DatePicker
+        label="End Date"
+        value={endDate}
+        onChange={(date) => setEndDate(date)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            sx={{
+              width: 200,
+              "& .MuiInputBase-root": {
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+              },
+              "& input": {
+                height: "40px",
+                padding: "10px",
+              },
+            }}
           />
-          <Button
-  variant="contained"
-  onClick={handleFetchTickets}
-  disabled={!startDate || !endDate}
-  sx={{
-    backgroundColor: '#d82b27', // Set the background color
-    color: 'white', // Set text color to white
-    '&:hover': {
-      backgroundColor: '#a1221f', // Darken the background on hover
-    },
-  }}
->
-  Fetch Tickets
-</Button>
+        )}
+      />
+      <IconButton
+        onClick={handleFetchTickets}
+        disabled={!startDate || !endDate}
+        sx={{
+          backgroundColor: "#d82b27",
+          color: "white",
+          "&:hover": {
+            backgroundColor: "#a1221f",
+          },
+        }}
+      >
+  <SearchIcon />
+</IconButton>
 
         </Box>
         

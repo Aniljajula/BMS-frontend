@@ -47,7 +47,7 @@ const Team = () => {
   const fetchUserData = async () => {
     try {
       const response = await fetch(
-        "http://192.168.1.40:51270/GetAllLoginDetailsInPlainLoginDetailFormate"
+        "http://122.175.45.16:51270/GetAllLoginDetailsInPlainLoginDetailFormate"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch users");
@@ -231,17 +231,20 @@ const Team = () => {
       flex: 1,
       sortable: false,
       renderCell: (params) => (
-        <Box display="flex"
-            flexDirection="column" // Stack icons vertically
-            alignItems="flex-start"
-            justifyContent="flex-start"
-            width="100%">
-        <IconButton
-          color="secondary"
-          onClick={() => handleOpen("edit", params.row)}
+        <Box
+          display="flex"
+          flexDirection="row" // Changed to row to align icons horizontally
+          alignItems="center" // Align icons vertically in the center
+          justifyContent="flex-start" // Align icons to the start of the cell
+          gap={1} // Adds space between the icons
+          width="100%"
         >
-          <EditIcon />
-        </IconButton>
+          <IconButton
+            color="secondary"
+            onClick={() => handleOpen("edit", params.row)}
+          >
+            <EditIcon />
+          </IconButton>
           <IconButton
             color="secondary"
             onClick={() => handleDeleteClick(params.row.loginCredentialsId)}
@@ -251,6 +254,7 @@ const Team = () => {
         </Box>
       ),
     },
+    
   ];
   
 
@@ -267,6 +271,7 @@ const Team = () => {
     color: 'white', // Set text color to white
     '&:hover': {
       backgroundColor: '#a1221f', // Optional: Darken background on hover
+      
     },
   }}
 >
