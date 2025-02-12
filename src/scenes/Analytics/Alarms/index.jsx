@@ -38,7 +38,7 @@ const columnMappings = {
 const Alarms = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { data = {}, fetchAlarmsBatteryandChargerdetails } = useContext(AppContext); // Ensure fetchAlarmsBatteryandChargerdetails is available in context
+  const { data = {} } = useContext(AppContext);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState("asc");
@@ -92,44 +92,25 @@ const Alarms = () => {
   const formattedData = combineAlarmsData(data.content || []);
   const displayedData = sortedData(formattedData);
 
-  const handleDownloadExcel = async () => {
-    try {
-      let dataToDownload;
-  
-      // Fetch data every time before downloading
-      const result = await fetchAlarmsBatteryandChargerdetails(
-        data.serialNumber, // Ensure these values are available in context
-        data.siteId,
-        data.startDate,
-        data.endDate
-      );
-  
-      if (!result || result.length === 0) {
-        alert("No data available for download.");
-        return;
-      }
-  
-      // Process and combine the fetched data
-      dataToDownload = combineAlarmsData(result);
-  
-      // Prepare Excel data
-      const workbook = XLSX.utils.book_new();
-      const excelData = dataToDownload.map((row) =>
-        Object.keys(row).map((key) =>
-          key === "packetDateTime" ? TimeFormat(row[key]) : row[key] || "No Data"
-        )
-      );
-      const headers = Object.keys(dataToDownload[0]).map(
-        (key) => columnMappings[key] || key
-      );
-      excelData.unshift(headers);
-      const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Alarms Data");
-      XLSX.writeFile(workbook, "Alarms_Report.xlsx");
-    } catch (error) {
-      console.error("Error downloading Excel:", error);
-      alert("Failed to download Excel. Please try again.");
+  const handleDownloadExcel = () => {
+    if (formattedData.length === 0) {
+      alert("No data available for download.");
+      return;
     }
+
+    const workbook = XLSX.utils.book_new();
+    const excelData = displayedData.map((row) =>
+      Object.keys(row).map((key) =>
+        key === "packetDateTime" ? TimeFormat(row[key]) : row[key] || "No Data"
+      )
+    );
+    const headers = Object.keys(formattedData[0]).map(
+      (key) => columnMappings[key] || key
+    );
+    excelData.unshift(headers);
+    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Alarms Data");
+    XLSX.writeFile(workbook, "Alarms_Report.xlsx");
   };
 
   return (
